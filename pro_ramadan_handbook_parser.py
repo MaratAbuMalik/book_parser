@@ -4,7 +4,9 @@ import json
 import xlrd
 from xml.sax.saxutils import unescape
 
-text_lst = []
+text_lst = ['']
+
+header_lst = ['']
 
 rb = xlrd.open_workbook('book.xlsx')
 sheet = rb.sheet_by_index(0)
@@ -18,6 +20,7 @@ def parse_section(row, col):
     if book_table(row)[col + 1] and not book_table(row)[col + 2]:
         section_dict['textIndex'] = row
         text_lst.append(book_table(row)[col + 1])
+        header_lst.append(book_table(row)[col])
     else:
         section_dict['textIndex'] = 0
 
@@ -70,6 +73,17 @@ def get_text():
     return text
 
 
+def get_text_headers():
+    text = 'List<String> handbookTextHeaders = ['
+
+    for i in header_lst:
+        text += f"'''{i}''',\n"
+
+    text += '];'
+
+    return text
+
+
 
 def generate_text(lst):
     xml_begin = '<?xml version="1.0" encoding="utf-8"?>'
@@ -92,7 +106,10 @@ def generate_text(lst):
 
 book_data = parse_section(1, 0)
 
+print(len(header_lst))
+print(len(text_lst))
 with open('pro_ramadan_handbook_structure.dart', 'w', encoding='utf-8') as f:
     f.write(f"import '../util/section.dart'; Section handbookStructure = {get_structure(book_data)};")
 with open('pro_ramadan_handbook_text.dart', 'w', encoding='utf-8') as f:
+    f.write(get_text_headers())
     f.write(get_text())
