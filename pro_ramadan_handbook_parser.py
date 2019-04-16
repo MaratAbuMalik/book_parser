@@ -15,10 +15,10 @@ sheet = rb.sheet_by_index(0)
 book_table = sheet.row_values
 
 
-def parse_section(row, col, header):
+def parse_section(row, col, header, prefix = ''):
     section_dict = dict()
 
-    section_dict['name'] = book_table(row)[col]
+    section_dict['name'] = prefix + book_table(row)[col]
     if book_table(row)[col + 1] and not book_table(row)[col + 2]:
         section_dict['textIndex'] = row
         text_lst.append(book_table(row)[col + 1])
@@ -33,7 +33,8 @@ def parse_section(row, col, header):
     if book_table(row)[col + 2]:
         header = header + '\n' + book_table(row)[col] if header != '' else book_table(row)[col]
         section_dict['sections'].append(
-            parse_section(row, col + 1, header + '.' if 'ProRamadan' not in header else ''))
+            parse_section(row, col + 1, header + '.' if 'ProRamadan' not in header else '',
+                          prefix=(prefix.strip() + str(len(section_dict['sections']) + 1) + '. ')))
         while(True):
             row += 1
             if row == sheet.nrows or col >= get_level(row):
@@ -41,7 +42,8 @@ def parse_section(row, col, header):
 
             if book_table(row)[col + 1]:
                 section_dict['sections'].append(
-                    parse_section(row, col + 1, header + '.' if 'ProRamadan' not in header else ''))
+                    parse_section(row, col + 1, header + '.' if 'ProRamadan' not in header else '',
+                                  prefix=(prefix.strip() + str(len(section_dict['sections']) + 1) + '. ')))
 
     return section_dict
 
