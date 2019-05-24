@@ -1,4 +1,5 @@
 import xlrd
+from requests import head
 
 russian_titles = []
 arabic_titles = []
@@ -6,12 +7,21 @@ russian_matns = []
 arabic_matns = []
 sharkhs = []
 questions = []
+audios = []
 lecturers = []
+chapters = []
 
 
 def parse():
     rb = xlrd.open_workbook('structure.xlsx')
     sheet = rb.sheet_by_index(0)
+    for rownum in range(0, 1):
+        row = sheet.row_values(rownum)
+        for lecturers_rownum in range(6, 10):
+            lecturers.append(row[lecturers_rownum])
+    for rownum in range(1, sheet.nrows):
+        row = sheet.row_values(rownum)
+        chapters.append(row[0])
     for rownum in range(1, sheet.nrows):
         row = sheet.row_values(rownum)
         russian_titles.append(row[0])
@@ -20,49 +30,76 @@ def parse():
         arabic_matns.append(row[3])
         sharkhs.append(row[4])
         questions.append(row[5])
-        lecturer = []
+        lecturer_audios = []
         for lecturers_rownum in range(6, 10):
-            lecturer.append(str(row[lecturers_rownum]).split())
-        lecturers.append(lecturer)
+            lecturer_audios.append(str(row[lecturers_rownum]).split())
+        audios.append(lecturer_audios)
 
 
 parse()
 
-with open('chapters.dart', 'w', encoding='utf-8') as f:
-    f.write("import '../util/chapter_class.dart';\n\n")
-    f.write("List<Chapter> chapters = [\n")
+with open('book.dart', 'w', encoding='utf-8') as book, open('audio.dart', 'w', encoding='utf-8') \
+        as lectures:
+    book.write("import '../util/chapter_class.dart';\n\n")
+    book.write("List<Chapter> chapters = [\n")
 
     for i in range(len(russian_titles)):
-        f.write(f'Chapter(\n')
-        f.write(f'russianHeader: """{russian_titles[i]}""",\n')
-        f.write(f'arabicHeader: """{arabic_titles[i]}""",\n')
-        f.write(f'tabList: [\n')
-        f.write(f'TabDescription(text: """{russian_matns[i]}"""),\n')
-        f.write(f'TabDescription(text: """{arabic_matns[i]}""", isArabic: true),\n')
-        f.write(f'TabDescription(text: """{sharkhs[i]}"""),\n')
-        f.write(f'TabDescription(text: """{questions[i]}"""),\n')
-        f.write(f'TabDescription(\n')
-        f.write(f'lectureList: [\n')
-        for j in lecturers[i]:
-            f.write(f'[\n')
-            for k in j:
-                f.write(f'"{k}",\n')
-            f.write('],\n')
-        f.write('],\n')
-        f.write('),\n')
-        f.write('],\n')
-        f.write('),\n')
+        book.write(f'Chapter(\n')
+        book.write(f'russianHeader: """{russian_titles[i]}""",\n')
+        book.write(f'arabicHeader: """{arabic_titles[i]}""",\n')
+        book.write(f'tabList: [\n')
+        book.write(f'TabDescription(text: """{russian_matns[i]}"""),\n')
+        book.write(f'TabDescription(text: """{arabic_matns[i]}""", isArabic: true),\n')
+        book.write(f'TabDescription(text: """{sharkhs[i]}"""),\n')
+        book.write(f'TabDescription(text: """{questions[i]}"""),\n')
+        book.write(f'TabDescription(\n')
+        book.write(f'isAudio: true\n')
+        book.write('),\n')
+        book.write('],\n')
+        book.write('),\n')
+    book.write("];")
 
-    f.write("];")
+    lectures.write("import 'package:educational_audioplayer/util/audio.dart';\n\n")
+
+    lectures.write('List<String> authorNames = [')
+    for i in lecturers:
+        lectures.write(f'"{i}",')
+    lectures.write("];\n\n")
+
+    lectures.write('List<String> chapterNames = [')
+    for i in chapters:
+        lectures.write(f'"{i}",')
+    lectures.write("];\n\n")
+
+    lectures.write("List audios = [\n")
+    for i in range(len(chapters)):
+        lectures.write(f'[\n')
+        for j in range(len(audios[i])):
+            lectures.write(f'[\n')
+            for k in range(len(audios[i][j])):
+                lectures.write('Audio(')
+                lectures.write(f'url: "{audios[i][j][k]}", ')
+                lectures.write(f'audioName: "Лекция № {k + 1}", ')
+                lectures.write(f'audioSize: {round(int(head(audios[i][j][k], allow_redirects=True).headers["Content-Length"]) / 1024 / 1024)}, ')
+                lectures.write(f'audioDescription: "", ')
+                lectures.write(f'chapterName: chapterNames[{i}], ')
+                lectures.write(f'authorName: authorNames[{j}], ')
+                lectures.write('), \n')
+            lectures.write('],\n')
+        lectures.write('],\n')
+    lectures.write("];")
+
 
 if __name__ == '__main__':
-    for i in range(len(russian_titles)):
-        print(russian_titles[i])
-        print(arabic_titles[i])
-        print(russian_matns[i])
-        print(arabic_matns[i])
-        print(sharkhs[i])
-        print(questions[i])
-        for j in lecturers[i]:
-            print(j)
-        print()
+    # for i in range(len(russian_titles)):
+        # print(russian_titles[i])
+        # print(arabic_titles[i])
+        # print(russian_matns[i])
+        # print(arabic_matns[i])
+        # print(sharkhs[i])
+        # print(questions[i])
+        # for j in audios[i]:
+        #     print(j)
+        # print()
+    print(lecturers)
+    print(chapters)
