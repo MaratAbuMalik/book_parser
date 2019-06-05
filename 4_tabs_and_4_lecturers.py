@@ -1,8 +1,8 @@
 import xlrd
 from requests import head
 
-russian_titles = []
-arabic_titles = []
+russian_headers = []
+arabic_headers = []
 russian_matns = []
 arabic_matns = []
 sharkhs = []
@@ -28,8 +28,8 @@ def parse_book():
         chapters.append(row[0])
     for rownum in range(1, sheet.nrows):
         row = sheet.row_values(rownum)
-        russian_titles.append(row[0])
-        arabic_titles.append(row[1])
+        russian_headers.append(row[0])
+        arabic_headers.append(row[1])
         russian_matns.append(row[2])
         arabic_matns.append('<bdo dir="rtl">' + row[3] + '</bdo>')
         sharkhs.append(row[4])
@@ -65,25 +65,35 @@ def parse_share_book():
 
 def write_book():
     with open('book.dart', 'w', encoding='utf-8') as book:
-        book.write("import 'share_book.dart';\n")
-        book.write("import '../util/chapter_class.dart';\n\n")
-        book.write("List<Chapter> chapters = [\n")
+        book.write("List<String> russianHeaders = [\n")
+        for i in range(len(russian_headers)):
+            book.write(f'"""{russian_headers[i]}""",\n')
+        book.write("];\n\n")
 
-        for i in range(len(russian_titles)):
-            book.write(f'Chapter(\n')
-            book.write(f'russianHeader: """{russian_titles[i]}""",\n')
-            book.write(f'arabicHeader: """{arabic_titles[i]}""",\n')
-            book.write(f'tabList: [\n')
-            book.write(f'TabDescription(text: """{russian_matns[i]}""", shareText: share_russian_matns[{i}]),\n')
-            book.write(f'TabDescription(text: """{arabic_matns[i]}""", isArabic: true, shareText: share_arabic_matns[{i}]),\n')
-            book.write(f'TabDescription(text: """{sharkhs[i]}""", shareText: share_sharkhs[{i}]),\n')
-            book.write(f'TabDescription(text: """{questions[i]}""", shareText: share_questions[{i}]),\n')
-            book.write(f'TabDescription(\n')
-            book.write(f'isAudio: true\n')
-            book.write('),\n')
-            book.write('],\n')
-            book.write('),\n')
-        book.write("];")
+        book.write("List<String> arabicHeaders = [\n")
+        for i in range(len(arabic_headers)):
+            book.write(f'"""{arabic_headers[i]}""",\n')
+        book.write("];\n\n")
+
+        book.write("List<String> russianMatns = [\n")
+        for i in range(len(russian_matns)):
+            book.write(f'"""{russian_matns[i]}""",\n')
+        book.write("];\n\n")
+
+        book.write("List<String> arabicMatns = [\n")
+        for i in range(len(arabic_matns)):
+            book.write(f'"""{arabic_matns[i]}""",\n')
+        book.write("];\n\n")
+
+        book.write("List<String> sharkhs = [\n")
+        for i in range(len(sharkhs)):
+            book.write(f'"""{sharkhs[i]}""",\n')
+        book.write("];\n\n")
+
+        book.write("List<String> questions = [\n")
+        for i in range(len(questions)):
+            book.write(f'"""{questions[i]}""",\n')
+        book.write("];\n\n")
 
 
 def write_audio():
@@ -121,25 +131,52 @@ def write_audio():
 
 def write_share_book():
     with open('share_book.dart', 'w', encoding='utf-8') as share_book:
-        share_book.write("List<String> share_russian_matns = [\n")
+        share_book.write("List<String> shareRussianMatns = [\n")
         for i in range(len(share_russian_matns)):
             share_book.write(f'"""{share_russian_matns[i]}""",\n')
         share_book.write("];\n\n")
 
-        share_book.write("List<String> share_arabic_matns = [\n")
+        share_book.write("List<String> shareArabicMatns = [\n")
         for i in range(len(share_arabic_matns)):
             share_book.write(f'"""{share_arabic_matns[i]}""",\n')
         share_book.write("];\n\n")
 
-        share_book.write("List<String> share_sharkhs = [\n")
+        share_book.write("List<String> shareSharkhs = [\n")
         for i in range(len(share_sharkhs)):
             share_book.write(f'"""{share_sharkhs[i]}""",\n')
         share_book.write("];\n\n")
 
-        share_book.write("List<String> share_questions = [\n")
+        share_book.write("List<String> shareQuestions = [\n")
         for i in range(len(share_questions)):
             share_book.write(f'"""{share_questions[i]}""",\n')
         share_book.write("];\n\n")
+
+
+def write_structure():
+    with open('structure.dart', 'w', encoding='utf-8') as structure:
+        structure.write("import 'book.dart';\n")
+        structure.write("import 'share_book.dart';\n")
+        structure.write("import '../util/chapter_class.dart';\n\n")
+        structure.write("List<Chapter> chapters = [\n")
+
+        for i in range(len(russian_headers)):
+            structure.write(f'Chapter(\n')
+            structure.write(f'russianHeader: russianHeaders[{i}],\n')
+            structure.write(f'arabicHeader: arabicHeaders[{i}],\n')
+            structure.write(f'tabList: [\n')
+            structure.write(f'TabDescription(text: russianMatns[{i}], '
+                            f'shareText: shareRussianMatns[{i}]),\n')
+            structure.write(f'TabDescription(text: arabicMatns[{i}], isArabic: true, '
+                            f'shareText: shareArabicMatns[{i}]),\n')
+            structure.write(f'TabDescription(text: sharkhs[{i}], '
+                            f'shareText: shareSharkhs[{i}]),\n')
+            structure.write(f'TabDescription(text: questions[{i}], '
+                            f'shareText: shareQuestions[{i}]),\n')
+            structure.write(f'TabDescription(isAudio: true\n')
+            structure.write('),\n')
+            structure.write('],\n')
+            structure.write('),\n')
+        structure.write("];")
 
 
 if __name__ == '__main__':
@@ -152,9 +189,11 @@ if __name__ == '__main__':
     parse_audio()
     write_audio()
 
-    # for i in range(len(russian_titles)):
-        # print(russian_titles[i])
-        # print(arabic_titles[i])
+    write_structure()
+
+    # for i in range(len(russian_headers)):
+        # print(russian_headers[i])
+        # print(arabic_headers[i])
         # print(russian_matns[i])
         # print(arabic_matns[i])
         # print(sharkhs[i])
