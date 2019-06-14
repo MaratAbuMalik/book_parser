@@ -118,7 +118,10 @@ def write_audio():
                 for k in range(len(audios[i][j])):
                     lectures.write('Audio(')
                     lectures.write(f'url: "{audios[i][j][k]}", ')
-                    lectures.write(f'audioName: "Лекция № {k + 1}", ')
+                    if i == 0:
+                        lectures.write(f'audioName: "Введение, лекция {k + 1}", ')
+                    else:
+                        lectures.write(f'audioName: "Глава {i}, лекция {k + 1}", ')
                     lectures.write(f'audioSize: {round(int(head(audios[i][j][k], allow_redirects=True).headers["Content-Length"]) / 1024 / 1024)}, ')
                     lectures.write(f'audioDescription: "", ')
                     lectures.write(f'chapterName: chapterNames[{i}], ')
