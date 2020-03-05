@@ -29,7 +29,7 @@ def parse_book():
         russian_headers.append(row[0])
         arabic_headers.append(row[1])
         russian_matns.append(row[2])
-        arabic_matns.append('<bdo dir="rtl">' + row[3] + '</bdo>')
+        arabic_matns.append(row[3])
         sharkhs.append(row[4])
 
 
