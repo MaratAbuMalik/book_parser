@@ -108,9 +108,9 @@ book_data = parse_section(1, 0, '')
 
 print(len(header_lst))
 print(len(text_lst))
-with open('pro_ramadan_handbook_structure.dart', 'w', encoding='utf-8') as f:
+with open('structure.dart', 'w', encoding='utf-8') as f:
     f.write(f"import '../util/section.dart'; Section handbookStructure = {get_structure(book_data)};")
-with open('pro_ramadan_handbook_text.dart', 'w', encoding='utf-8') as f:
+with open('text.dart', 'w', encoding='utf-8') as f:
     f.write(get_text_headers())
     f.write(get_bookmarks_headers())
     f.write(get_text())
