@@ -31,7 +31,7 @@ def parse_book():
         russian_headers.append(row[0])
         arabic_headers.append(row[1])
         russian_matns.append(row[2])
-        arabic_matns.append('<bdo dir="rtl">' + row[3] + '</bdo>')
+        arabic_matns.append(row[3])
         sharkhs.append(row[4])
         questions.append(row[5])
 
@@ -41,12 +41,12 @@ def parse_audio():
     sheet = rb.sheet_by_index(0)
     for rownum in range(0, 1):
         row = sheet.row_values(rownum)
-        for lecturers_rownum in range(1, 5):
+        for lecturers_rownum in range(1, 6):
             lecturers.append(row[lecturers_rownum])
     for rownum in range(1, sheet.nrows):
         row = sheet.row_values(rownum)
         lecturer_audios = []
-        for lecturers_rownum in range(1, 5):
+        for lecturers_rownum in range(1, 6):
             lecturer_audios.append(str(row[lecturers_rownum]).split())
         audios.append(lecturer_audios)
 
@@ -159,7 +159,7 @@ def write_structure():
     with open('structure.dart', 'w', encoding='utf-8') as structure:
         structure.write("import 'book.dart';\n")
         structure.write("import 'share_book.dart';\n")
-        structure.write("import '../util/chapter_class.dart';\n\n")
+        structure.write("import '../util/util_classes.dart';\n\n")
         structure.write("List<Chapter> chapters = [\n")
 
         for i in range(len(russian_headers)):

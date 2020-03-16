@@ -145,7 +145,7 @@ def write_structure():
     with open('structure.dart', 'w', encoding='utf-8') as structure:
         structure.write("import 'book.dart';\n")
         structure.write("import 'share_book.dart';\n")
-        structure.write("import '../util/chapter_class.dart';\n\n")
+        structure.write("import '../util/util_classes.dart';\n\n")
         structure.write("List<Chapter> chapters = [\n")
 
         for i in range(len(russian_headers)):
